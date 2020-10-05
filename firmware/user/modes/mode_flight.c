@@ -23,6 +23,7 @@
 #include <osapi.h>
 #include <mem.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "user_main.h"
 #include "embeddednf.h"
@@ -107,6 +108,10 @@ static bool ICACHE_FLASH_ATTR flightRender(void);
 static void ICACHE_FLASH_ATTR flightGameUpdate( flight_t * tflight );
 static tdModel * ICACHE_FLASH_ATTR tdAllocateModel( int faces, const uint16_t * indices, const int16_t * vertices, int indices_per_face /* 2= lines 3= tris */ );
 void ICACHE_FLASH_ATTR tdDrawModel( const tdModel * m );
+int ICACHE_FLASH_ATTR tdModelVisibilitycheck( const tdModel * m );
+
+static int ICACHE_FLASH_ATTR mdlctcmp( const void * va, const void * vb );
+
 
 /*============================================================================
  * Variables
@@ -192,7 +197,7 @@ void ICACHE_FLASH_ATTR flightEnterMode(void)
 
 	{
 		uint32_t retlen;
-		uint16_t * data = (int16_t*)getAsset( "3denv.obj", &retlen );
+		uint16_t * data = (uint16_t*)getAsset( "3denv.obj", &retlen );
 		data+=2; //header
 		flight->enviromodels = *(data++);
 		flight->environment = os_malloc( sizeof(tdModel *) * flight->enviromodels );
@@ -621,7 +626,7 @@ static tdModel * ICACHE_FLASH_ATTR tdAllocateModel( int nrfaces, const uint16_t 
     return ret;
 }
 
-int tdModelVisibilitycheck( const tdModel * m )
+int ICACHE_FLASH_ATTR tdModelVisibilitycheck( const tdModel * m )
 {
 
 	//For computing visibility check
